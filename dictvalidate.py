@@ -66,10 +66,24 @@ class DictValidator:
             data = self._get_by_fqn(fqn)
             type_ = self._get_schema_type(fqn, data)
 
+
+            # Check if data matches anything in list
+            if isinstance(type_, list):
+                if value not in type_:
+                    self.invalid.append({
+                        "fqn": ".".join(fqn),
+                        "value": value,
+                        "error": "type",
+                        "message": "'%s' not found in list." % value
+                    })
+                return
+            
+            # Determine if type of data matches as expected
             check_type(fqn, value, type_)
             if type_ is None:
                 return
 
+            # If not a Field, we're done
             if not isinstance(data, Field):
                 return
 
@@ -156,7 +170,8 @@ def test():
             "fifth": {
                 "sixth": 12
             },
-            "extra": "haha"
+            "extra": "haha",
+            "list": 'a'
         }
     }
     
@@ -168,7 +183,8 @@ def test():
             "fifth": {
                 "sixth": Field(type=int)
             },
-            "missing": object
+            "missing": object,
+            "list": ['a', 'b', 'c']
         }
     }
     
